@@ -74,15 +74,15 @@ def edit_task(
     return db_task
 
 
-def delete_task_by_id(db: Session, user_id: str, task_id: str):
+def delete_task_by_id(db: Session, task_id: str):
     db_task = task_repo.find_task_by_id(db, task_id, False)
     if db_task is None:
         raise ValueError("Error task does not exist")
 
-    task_repo.create_task_history(db, user_id, db_task)
+    task_repo.delete_task_history_by_task_id(db, task_id)
     task_repo.delete_task(db, db_task)
     
-def undo_edited_task(db: Session, user_id: str, task_id: str, undo_depth: int):
+def undo_edited_task(db: Session, task_id: str, undo_depth: int):
     db_task = task_repo.find_task_by_id(db, task_id, False)
     if db_task is None:
         raise ValueError("Error task does not exist")
@@ -92,7 +92,7 @@ def undo_edited_task(db: Session, user_id: str, task_id: str, undo_depth: int):
         raise ValueError("Error invalid request.undo_depth")
     
     task_history = task_repo.find_task_history(db, task_id, undo_version)
-    task_repo.update_task_by_task_history(db, db_task=db_task, task_history=task_history)
+    db_task = task_repo.update_task_by_task_history(db, db_task=db_task, task_history=task_history)
     task_repo.delete_newer_task_history(db, task_id, undo_version)
     
     return db_task

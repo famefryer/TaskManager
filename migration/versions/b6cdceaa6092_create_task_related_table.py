@@ -17,7 +17,7 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-task_status_enum = sa.Enum('OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED', 'DELETED', name="taskstatus")
+task_status_enum = sa.Enum('OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED', name="taskstatus")
 task_perm_type_enum = sa.Enum('USER', 'TEAM', name='taskpermissiontype')
 task_perm_level_enum = sa.Enum('VIEW', 'EDIT', 'DELETE', name='taskpermissionlevel')
 

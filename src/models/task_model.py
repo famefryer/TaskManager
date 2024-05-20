@@ -56,6 +56,7 @@ class TaskHistory(Base):
     use_permission = Column(Boolean, default=False, nullable=False)
     edited_by = Column(UUID, ForeignKey('user.id'), nullable=False)
     edited_at = Column(DateTime(), default= func.now(), nullable=False)
+    deleted_at = Column(DateTime(), nullable=True)
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -82,7 +82,7 @@ def update_task(db: Session, db_task: Task, edited_task: TaskEditRequest):
 
     db.commit()
 
-def update_task_by_task_history(db: Session, db_task: Task, task_history: TaskHistory):
+def update_task_by_task_history(db: Session, db_task: Task, task_history: TaskHistory) -> Task:
     db_task.version = task_history.version
     db_task.topic = task_history.topic
     db_task.description = task_history.description
@@ -94,6 +94,8 @@ def update_task_by_task_history(db: Session, db_task: Task, task_history: TaskHi
         db_task.deleted_at = None
 
     db.commit()
+    
+    return db_task
 
 
 def delete_task(db: Session, task: Task):
@@ -101,9 +103,9 @@ def delete_task(db: Session, task: Task):
     task.deleted_at = func.now()
     db.commit()
 
-
 def delete_all_soft_deleted_tasks(db: Session) -> int:
     res = db.query(Task).filter(Task.deleted_at != None).delete()
+    res = db.query(TaskHistory).filter(TaskHistory.deleted_at != None).delete()
     db.commit()
     return res
 
@@ -114,17 +116,6 @@ def find_task_history(db: Session, task_id: str, version: int):
         .where(TaskHistory.task_id == task_id, TaskHistory.version == version)
         .first()
     )
-
-
-def delete_newer_task_history(db: Session, task_id: str, cur_version: int):
-    res = (
-        db.query(TaskHistory)
-        .filter(TaskHistory.task_id == task_id, TaskHistory.version >= cur_version)
-        .delete()
-    )
-    db.commit()
-    return res
-
 
 def create_task_history(db: Session, user_id: str, task: Task) -> TaskHistory:
     task_history = TaskHistory(
@@ -141,3 +132,18 @@ def create_task_history(db: Session, user_id: str, task: Task) -> TaskHistory:
     db.commit()
 
     return task_history
+
+def delete_newer_task_history(db: Session, task_id: str, cur_version: int):
+    res = (
+        db.query(TaskHistory)
+        .filter(TaskHistory.task_id == task_id, TaskHistory.version >= cur_version)
+        .delete()
+    )
+    db.commit()
+    return res
+
+def delete_task_history_by_task_id(db: Session, task_id: str):
+    task_histories = db.query(TaskHistory).filter(TaskHistory.task_id == task_id).all()
+    for task_h in task_histories:
+        task_h.deleted_at = func.now()
+    db.commit()

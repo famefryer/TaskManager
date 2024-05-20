@@ -28,13 +28,13 @@ def create_task(user_id: Annotated[Union[str, None], Header()], task: TaskCreate
 def edit_task(user_id: Annotated[Union[str, None], Header()], task_id: str, edit_task: TaskEditRequest, db: Session = Depends(get_db)):
     return task_service.edit_task(db, user_id, task_id, edit_task)
 
-@task_router.post("/{task_id}/undo")
+@task_router.post("/{task_id}/undo", response_model=TaskResponse)
 def undo_edited_task(user_id: Annotated[Union[str, None], Header()], task_id: str, undo_req: TaskUndoRequest, db: Session = Depends(get_db)):
-    return task_service.undo_edited_task(db, user_id, task_id, undo_req.undo_depth)
+    return task_service.undo_edited_task(db, task_id, undo_req.undo_depth)
 
 @task_router.delete("/{task_id}")
 def delete_task(user_id: Annotated[Union[str, None], Header()], task_id: str, db: Session = Depends(get_db)):
-    task_service.delete_task_by_id(db, user_id, task_id)    
+    task_service.delete_task_by_id(db, task_id)    
     return { "status" : "success"}
 
 @task_router.post("/clear-deleted-tasks")
