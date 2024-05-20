@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from exceptions.custom_exception import EntityAlreadyExistException, EntityNotFoundException
 from models.user_model import User
 from schemas.user_schema import UserCreateRequest
 import repos.user_repo as user_repo
@@ -15,7 +16,7 @@ def get_user_by_username(db:Session, username: str) -> User:
     
 def create_user(db: Session, user: UserCreateRequest) -> User:
     if user_repo.find_user_by_username(db, user.username) is not None:
-        raise ValueError('Error username already exists')
+        raise EntityAlreadyExistException('User', 'username', user.username)
     
     db_user = user_repo.create_user(db, user)
     return db_user
@@ -23,15 +24,15 @@ def create_user(db: Session, user: UserCreateRequest) -> User:
 def delete_user_by_id(db:Session, id: str):
     db_user = user_repo.find_user_by_id(db, id)
     if db_user is None:
-        raise ValueError('Error user does not exist')
+        raise EntityNotFoundException("User", id)
     
     user_repo.delete_user(db, db_user)
     
 def delete_user_by_username(db:Session, username: str):
     db_user = user_repo.find_user_by_username(db, username)
     if db_user is None:
-        raise ValueError('Error user does not exist')
-    
+        raise EntityNotFoundException("User", username, 'username')
+
     user_repo.delete_user(db, db_user)
     
 def clear_all_deleted_user(db: Session) -> int:

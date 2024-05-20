@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.orm import Session
 from dependencies import get_db
+from exceptions.custom_exception import EntityNotFoundException
 from schemas.user_schema import LoginRequest, UserCreateRequest, UserResponse 
 from services import user_service
 
@@ -14,9 +15,9 @@ def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     
 @user_router.get("/{user_id}", response_model=UserResponse)
 def get_user_by_userid(user_id: str, db: Session = Depends(get_db)):
-    user = user_service.get_user_by_id(db, id)
+    user = user_service.get_user_by_id(db, user_id)
     if user is None:
-        raise HTTPException(status_code='404', detail='User not found')
+        raise EntityNotFoundException('User', user_id)
 
     return user
 
@@ -24,7 +25,7 @@ def get_user_by_userid(user_id: str, db: Session = Depends(get_db)):
 def login(login_req: LoginRequest, db: Session = Depends(get_db)):
     user = user_service.get_user_by_username(db, login_req.username)
     if user is None:
-        raise HTTPException(status_code='404', detail='User not found')
+        raise EntityNotFoundException('User', login_req.username, col_name='username')
 
     return user
 

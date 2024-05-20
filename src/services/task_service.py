@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from exceptions.custom_exception import BadRequestException, EntityNotFoundException
 from models.task_model import Task, TaskHistory, TaskPermissionLevel, TaskPermissionType
 from schemas.task_schema import TaskCreateRequest, TaskEditRequest
 from repos import task_repo, user_repo, team_repo
@@ -37,7 +38,7 @@ def create_task(db: Session, user_id: str, task: TaskCreateRequest) -> Task:
 
             db_user = user_repo.find_user_by_id(db, user_perm.entity_id)
             if db_user is None:
-                raise ValueError("User does not exists")
+                raise EntityNotFoundException('User', user_perm.entity_id)
 
             task_repo.add_task_permission(
                 db,
@@ -50,7 +51,7 @@ def create_task(db: Session, user_id: str, task: TaskCreateRequest) -> Task:
         for team_perm in task.permissions.team_permissions:
             db_team = team_repo.find_team_by_id(db, user_perm.entity_id)
             if db_team is None:
-                raise ValueError("Team does not exists")
+                raise EntityNotFoundException('Team', user_perm.entity_id)
 
             task_repo.add_task_permission(
                 db,
@@ -68,7 +69,7 @@ def edit_task(
 ) -> Task:
     db_task = task_repo.find_task_by_id(db, task_id, False)
     if db_task is None:
-        raise ValueError("Error task does not exist")
+        raise EntityNotFoundException('Team', task_id) 
 
     task_repo.create_task_history(db, user_id, db_task)
     task_repo.update_task(db, db_task, edited_task)
@@ -79,7 +80,7 @@ def edit_task(
 def delete_task_by_id(db: Session, task_id: str):
     db_task = task_repo.find_task_by_id(db, task_id, False)
     if db_task is None:
-        raise ValueError("Error task does not exist")
+        raise EntityNotFoundException('Team', task_id) 
 
     task_repo.delete_task_history_by_task_id(db, task_id)
     task_repo.delete_task(db, db_task)
@@ -88,11 +89,11 @@ def delete_task_by_id(db: Session, task_id: str):
 def undo_edited_task(db: Session, task_id: str, undo_depth: int):
     db_task = task_repo.find_task_by_id(db, task_id, False)
     if db_task is None:
-        raise ValueError("Error task does not exist")
+        raise EntityNotFoundException('Team', task_id) 
 
     undo_version = db_task.version - undo_depth
     if undo_version <= 0 or undo_version >= db_task.version:
-        raise ValueError("Error invalid request.undo_depth")
+        raise BadRequestException(f'invalid request.undo_depth')
 
     task_history = task_repo.find_task_history(db, task_id, undo_version)
     db_task = task_repo.update_task_by_task_history(
