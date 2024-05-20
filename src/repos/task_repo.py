@@ -19,11 +19,20 @@ def get_all_tasks(db: Session, skip: int, limit: int, inc_deleted: bool) -> list
         query = query.where(Task.deleted_at == None)
     return query.offset(skip).limit(limit).all()
 
+
 def find_task_by_id(db: Session, id: int, inc_deleted: bool) -> Task:
     query = db.query(Task)
     if not inc_deleted:
         query = query.where(Task.deleted_at == None)
     return query.where(Task.id == id).first()
+
+
+def find_task_by_ids(db: Session, ids: list[int], inc_deleted: bool) -> Task:
+    query = db.query(Task)
+    if not inc_deleted:
+        query = query.where(Task.deleted_at == None)
+    return query.filter(Task.id.in_(ids)).all()
+
 
 def create_task(db: Session, user_id, use_perm: bool, task: TaskCreateRequest) -> Task:
     db_task = Task(
@@ -71,6 +80,7 @@ def add_task_permission(
 
     return db_task_perm
 
+
 def update_task(db: Session, db_task: Task, edited_task: TaskEditRequest):
     db_task.version = db_task.version + 1
     if edited_task.topic is not None:
@@ -84,7 +94,10 @@ def update_task(db: Session, db_task: Task, edited_task: TaskEditRequest):
 
     db.commit()
 
-def update_task_by_task_history(db: Session, db_task: Task, task_history: TaskHistory) -> Task:
+
+def update_task_by_task_history(
+    db: Session, db_task: Task, task_history: TaskHistory
+) -> Task:
     db_task.version = task_history.version
     db_task.topic = task_history.topic
     db_task.description = task_history.description
@@ -93,13 +106,14 @@ def update_task_by_task_history(db: Session, db_task: Task, task_history: TaskHi
     db_task.use_permission = task_history.use_permission
 
     db.commit()
-    
+
     return db_task
 
 
 def delete_task(db: Session, task: Task):
     task.deleted_at = func.now()
     db.commit()
+
 
 def delete_all_soft_deleted_tasks(db: Session) -> int:
     res = db.query(Task).filter(Task.deleted_at != None).delete()
@@ -108,12 +122,17 @@ def delete_all_soft_deleted_tasks(db: Session) -> int:
     return res
 
 
-def find_task_history(db: Session, task_id: str, version: int):
+def get_all_task_history_by_task_id(db: Session, task_id) -> list[TaskHistory]:
+    return db.query(TaskHistory).where(TaskHistory.task_id == task_id).all()
+
+
+def find_task_history(db: Session, task_id: str, version: int) -> TaskHistory:
     return (
         db.query(TaskHistory)
         .where(TaskHistory.task_id == task_id, TaskHistory.version == version)
         .first()
     )
+
 
 def create_task_history(db: Session, user_id: str, task: Task) -> TaskHistory:
     task_history = TaskHistory(
@@ -131,6 +150,7 @@ def create_task_history(db: Session, user_id: str, task: Task) -> TaskHistory:
 
     return task_history
 
+
 def delete_newer_task_history(db: Session, task_id: str, cur_version: int):
     res = (
         db.query(TaskHistory)
@@ -140,8 +160,19 @@ def delete_newer_task_history(db: Session, task_id: str, cur_version: int):
     db.commit()
     return res
 
+
 def delete_task_history_by_task_id(db: Session, task_id: str):
     task_histories = db.query(TaskHistory).filter(TaskHistory.task_id == task_id).all()
     for task_h in task_histories:
         task_h.deleted_at = func.now()
+    db.commit()
+
+
+def restore_task(db: Session, task: Task) -> Task:
+    task.deleted_at = None
+    db.commit()
+
+
+def restore_task_history(db: Session, task_h: TaskHistory) -> TaskHistory:
+    task_h.deleted_at = None
     db.commit()

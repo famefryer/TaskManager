@@ -7,6 +7,7 @@ from schemas.task_schema import (
     TaskCreateRequest,
     TaskEditRequest,
     TaskResponse,
+    TaskRestoreRequest,
     TaskUndoRequest,
 )
 from services import task_service
@@ -76,3 +77,14 @@ def delete_task(task_id: str, db: Session = Depends(get_db)):
 def clear_all_deleted_tasks(db: Session = Depends(get_db)):
     num = task_service.clear_all_deleted_task(db)
     return {"deleted_items": num}
+
+
+@task_router.get("/{task_id}/history")
+def get_task_history(task_id: str, db: Session = Depends(get_db)):
+    return task_service.get_all_task_history(db, task_id=task_id)
+
+
+@task_router.post("/restore")
+def restore_deleted_tasks(req: TaskRestoreRequest, db: Session = Depends(get_db)):
+    num = task_service.restore_deleted_tasks(db, task_ids=req.task_ids)
+    return {"restore_items": num}
