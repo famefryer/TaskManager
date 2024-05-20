@@ -36,7 +36,7 @@ class UserResponse(BaseModel):
     teams: list[UserTeam]
     
     class Config:
-        orm_model = True
+        from_attributes = True
 
 
 class TeamUser(BaseModel):
@@ -51,4 +51,4 @@ class TeamResponse(BaseModel):
     members: list[TeamUser]
     
     class Config:
-        orm_model = True
+        from_attributes = True

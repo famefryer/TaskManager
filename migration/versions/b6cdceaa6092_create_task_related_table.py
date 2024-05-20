@@ -17,7 +17,7 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-task_status_enum = sa.Enum('DRAFT', 'OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED', 'DELETED', name="taskstatus")
+task_status_enum = sa.Enum('OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED', 'DELETED', name="taskstatus")
 task_perm_type_enum = sa.Enum('USER', 'TEAM', name='taskpermissiontype')
 task_perm_level_enum = sa.Enum('VIEW', 'EDIT', 'DELETE', name='taskpermissionlevel')
 
@@ -84,7 +84,7 @@ def upgrade() -> None:
     )
     
     op.create_table(
-        'task_permision',
+        'task_permission',
         sa.Column('id', sa.UUID, primary_key=True),
         sa.Column('task_id', sa.UUID, sa.ForeignKey('task.id'), nullable=False),
         sa.Column('permission_entity_id', sa.VARCHAR(38), nullable=False),
@@ -93,7 +93,7 @@ def upgrade() -> None:
     )
 
 def downgrade() -> None:
-    op.drop_table('task_permision')
+    op.drop_table('task_permission')
     op.drop_table('team_member')
     op.drop_table('team')
     op.drop_table('task_history')

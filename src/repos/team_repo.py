@@ -10,6 +10,9 @@ def get_all_teams(db: Session, skip: int, limit: int) -> list[Team]:
 def find_team_by_id(db: Session, id: int) -> Team:
     return db.query(Team).where(Team.deleted_at == None).where(Team.id == id).first()
 
+def find_team_by_permission_entity_id(db: Session, permission_entity_id: int):
+    return db.query(Team).where(Team.deleted_at == None).where(Team.permission_entity_id == permission_entity_id).first()
+
 def find_team_by_name(db: Session, name: str) -> Team:
     return db.query(Team).where(Team.deleted_at == None).where(Team.name == name).first()
 
