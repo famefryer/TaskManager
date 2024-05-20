@@ -42,9 +42,13 @@ class Team(Base):
         self.permission_entity_id = f'T-{self.id}'
 
     
-class TeamMeber(Base):
+class TeamMember(Base):
     __tablename__ = 'team_member'
     
     id = Column('id', UUID, primary_key=True)
     team_id = Column('team_id', UUID, ForeignKey('team.id'), nullable=False)
     user_id = Column('user_id', UUID, ForeignKey('user.id'), nullable=False)
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.id = uuid.uuid4()

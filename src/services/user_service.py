@@ -1,23 +1,14 @@
 from sqlalchemy.orm import Session
 
-from models.user_model import Team, User
-from schemas.user_schema import TeamCreate, UserCreate
+from schemas.user_schema import UserCreateRequest
+import repos.user_repo as user_repo
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(User).offset(skip).limit(limit).all()
+def get_users(db: Session, skip: int, limit: int):
+    return user_repo.get_all_users(db, skip, limit)
 
-def create_user(db: Session, user: UserCreate):
-    db_user = User(username=user.username, firstname=user.firstname, lastname=user.lastname, email=user.email)
-    db.add(db_user)
-    db.commit()
-    return db_user
-
-def get_teams(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Team).offset(skip).limit(limit).all()
-
-def create_team(db: Session, team: TeamCreate):
-    db_team = Team(name=team.name)
-    db.add(db_team)
-    db.commit()
-    return db_team
+def create_user(db: Session, user: UserCreateRequest):
+    if user_repo.find_user_by_username(db, user.username) is not None:
+        raise ValueError('Error username already exists')
     
+    db_user = user_repo.create_user(db, user)
+    return db_user
