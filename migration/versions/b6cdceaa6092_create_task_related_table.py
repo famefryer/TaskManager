@@ -79,8 +79,8 @@ def upgrade() -> None:
     op.create_table(
         'team_member',
         sa.Column('id', sa.UUID, primary_key=True),
-        sa.Column('team_id', sa.UUID, sa.ForeignKey('team.id'), nullable=False),
-        sa.Column('user_id', sa.UUID, sa.ForeignKey('user.id'), nullable=False)
+        sa.Column('team_id', sa.UUID, sa.ForeignKey('team.id', ondelete='CASCADE'), nullable=False),
+        sa.Column('user_id', sa.UUID, sa.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     )
     
     op.create_table(

@@ -17,7 +17,7 @@ class User(Base):
     last_updated_at = Column(DateTime, default= func.now(), onupdate=func.now(), nullable=False)
     deleted_at = Column(DateTime, nullable=True)
 
-    teams = relationship('Team', secondary='team_member', back_populates='members')
+    teams = relationship('Team', secondary='team_member', secondaryjoin='and_(team_member.c.team_id == Team.id, Team.deleted_at == None)', back_populates='members')
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -34,20 +34,20 @@ class Team(Base):
     last_updated_at = Column(DateTime, default= func.now(), onupdate=func.now(), nullable=False)
     deleted_at = Column(DateTime, nullable=True)
 
-    members = relationship('User', secondary='team_member', back_populates='teams')
+    members = relationship('User', secondary='team_member', secondaryjoin='and_(team_member.c.user_id == User.id, User.deleted_at == None)', back_populates='teams')
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.id = uuid.uuid4()
         self.permission_entity_id = f'T-{self.id}'
 
-    
+
 class TeamMember(Base):
     __tablename__ = 'team_member'
     
     id = Column('id', UUID, primary_key=True)
-    team_id = Column('team_id', UUID, ForeignKey('team.id'), nullable=False)
-    user_id = Column('user_id', UUID, ForeignKey('user.id'), nullable=False)
+    team_id = Column('team_id', UUID, ForeignKey('team.id', ondelete='CASCADE'), nullable=False)
+    user_id = Column('user_id', UUID, ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
