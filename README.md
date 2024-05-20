@@ -1,10 +1,11 @@
 # Task Management
-This is a Python application utilizing FastAPI, Alembic, and SQLAlchemy
+This is a Python application utilizing FastAPI, Alembic, PostgreSQL and SQLAlchemy
 ## Database
 ![alt text](/assets/db_er_disgram.png)
 ## Requirements
 - python3
 - pip3
+- postgresql
 ## Set Up
 Follow these steps to set up the project on your local machine:
 
