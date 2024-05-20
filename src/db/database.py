@@ -1,12 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from settings import db_url, db_name, db_password, db_username
 
-DB_USERNAME = 'postgres'
-DB_PASSWORD = 'famefryer'
-DB_NAME = 'task_management'
-DB_URL = 'localhost:5432'
-SQLALCHEMY_DB_URL = f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_URL}/{DB_NAME}'
+SQLALCHEMY_DB_URL = f'postgresql://{db_username}:{db_password}@{db_url}/{db_name}'
 
 engine = create_engine(SQLALCHEMY_DB_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

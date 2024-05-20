@@ -8,7 +8,6 @@ from exceptions import custom_exception
 app = FastAPI()
 app.include_router(router)
 
-
 @app.exception_handler(custom_exception.EntityNotFoundException)
 async def entity_not_found_exception_handler(
     request: Request, exc: custom_exception.EntityNotFoundException
