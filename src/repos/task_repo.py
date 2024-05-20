@@ -13,9 +13,11 @@ from models.task_model import (
 from schemas.task_schema import TaskCreateRequest, TaskEditRequest
 
 
-def get_all_tasks(db: Session, skip: int, limit: int) -> list[Task]:
-    return db.query(Task).where(Task.deleted_at == None).offset(skip).limit(limit).all()
-
+def get_all_tasks(db: Session, skip: int, limit: int, inc_deleted: bool) -> list[Task]:
+    query = db.query(Task)
+    if not inc_deleted:
+        query = query.where(Task.deleted_at == None)
+    return query.offset(skip).limit(limit).all()
 
 def find_task_by_id(db: Session, id: int, inc_deleted: bool) -> Task:
     query = db.query(Task)
@@ -89,9 +91,6 @@ def update_task_by_task_history(db: Session, db_task: Task, task_history: TaskHi
     db_task.status = task_history.status
     db_task.assignee = task_history.assignee
     db_task.use_permission = task_history.use_permission
-    
-    if task_history.status != TaskStatus.DELETED:
-        db_task.deleted_at = None
 
     db.commit()
     
@@ -99,7 +98,6 @@ def update_task_by_task_history(db: Session, db_task: Task, task_history: TaskHi
 
 
 def delete_task(db: Session, task: Task):
-    task.status = TaskStatus.DELETED
     task.deleted_at = func.now()
     db.commit()
 

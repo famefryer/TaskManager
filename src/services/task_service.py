@@ -5,8 +5,8 @@ from schemas.task_schema import TaskCreateRequest, TaskEditRequest
 from repos import task_repo, user_repo, team_repo
 
 
-def get_tasks(db: Session, skip: int = 0, limit: int = 100) -> list[Task]:
-    return task_repo.get_all_tasks(db, skip, limit)
+def get_tasks(db: Session, skip: int = 0, limit: int = 100, inc_deleted: bool = False) -> list[Task]:
+    return task_repo.get_all_tasks(db, skip, limit, inc_deleted)
 
 
 def find_task_by_id(db: Session, task_id: str, inc_deleted: bool = False) -> Task:
