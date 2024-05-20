@@ -30,4 +30,4 @@ async def entity_not_found_exception_handler(
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="localhost", port=8000, reload=True)
+    uvicorn.run(f"main:app", host="localhost", port=8000, reload=True)

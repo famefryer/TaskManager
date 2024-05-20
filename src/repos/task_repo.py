@@ -37,7 +37,7 @@ def find_task_by_id(db: Session, id: int, inc_deleted: bool) -> Task:
     return query.where(Task.id == id).first()
 
 
-def find_task_by_ids(db: Session, ids: list[int], inc_deleted: bool) -> Task:
+def find_task_by_ids(db: Session, ids: list[str], inc_deleted: bool) -> Task:
     query = db.query(Task)
     if not inc_deleted:
         query = query.where(Task.deleted_at == None)
