@@ -26,7 +26,7 @@ def get_all_tasks(
     if created_by is not None:
         query = query.where(Task.created_by == created_by)
     if assignee is not None:
-        query = query.where(Task.created_by == assignee)
+        query = query.where(Task.assignee == assignee)
     return query.offset(skip).limit(limit).all()
 
 
