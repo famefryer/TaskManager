@@ -7,9 +7,21 @@ from repos import task_repo, user_repo, team_repo
 
 
 def get_tasks(
-    db: Session, skip: int = 0, limit: int = 100, inc_deleted: bool = False, created_by: str = None, assignee: str = None
+    db: Session,
+    skip: int = 0,
+    limit: int = 100,
+    inc_deleted: bool = False,
+    created_by: str = None,
+    assignee: str = None,
 ) -> list[Task]:
-    return task_repo.get_all_tasks(db, skip=skip, limit=limit, inc_deleted=inc_deleted, created_by=created_by, assignee=assignee)
+    return task_repo.get_all_tasks(
+        db,
+        skip=skip,
+        limit=limit,
+        inc_deleted=inc_deleted,
+        created_by=created_by,
+        assignee=assignee,
+    )
 
 
 def find_task_by_id(db: Session, task_id: str, inc_deleted: bool = False) -> Task:
@@ -38,7 +50,7 @@ def create_task(db: Session, user_id: str, task: TaskCreateRequest) -> Task:
 
             db_user = user_repo.find_user_by_id(db, user_perm.entity_id)
             if db_user is None:
-                raise EntityNotFoundException('User', user_perm.entity_id)
+                raise EntityNotFoundException("User", user_perm.entity_id)
 
             task_repo.add_task_permission(
                 db,
@@ -51,7 +63,7 @@ def create_task(db: Session, user_id: str, task: TaskCreateRequest) -> Task:
         for team_perm in task.permissions.team_permissions:
             db_team = team_repo.find_team_by_id(db, user_perm.entity_id)
             if db_team is None:
-                raise EntityNotFoundException('Team', user_perm.entity_id)
+                raise EntityNotFoundException("Team", user_perm.entity_id)
 
             task_repo.add_task_permission(
                 db,
@@ -69,7 +81,7 @@ def edit_task(
 ) -> Task:
     db_task = task_repo.find_task_by_id(db, task_id, False)
     if db_task is None:
-        raise EntityNotFoundException('Team', task_id) 
+        raise EntityNotFoundException("Team", task_id)
 
     task_repo.create_task_history(db, user_id, db_task)
     task_repo.update_task(db, db_task, edited_task)
@@ -80,7 +92,7 @@ def edit_task(
 def delete_task_by_id(db: Session, task_id: str):
     db_task = task_repo.find_task_by_id(db, task_id, False)
     if db_task is None:
-        raise EntityNotFoundException('Team', task_id) 
+        raise EntityNotFoundException("Team", task_id)
 
     task_repo.delete_task_history_by_task_id(db, task_id)
     task_repo.delete_task(db, db_task)
@@ -89,11 +101,11 @@ def delete_task_by_id(db: Session, task_id: str):
 def undo_edited_task(db: Session, task_id: str, undo_depth: int):
     db_task = task_repo.find_task_by_id(db, task_id, False)
     if db_task is None:
-        raise EntityNotFoundException('Team', task_id) 
+        raise EntityNotFoundException("Team", task_id)
 
     undo_version = db_task.version - undo_depth
     if undo_version <= 0 or undo_version >= db_task.version:
-        raise BadRequestException(f'invalid request.undo_depth')
+        raise BadRequestException(f"invalid request.undo_depth")
 
     task_history = task_repo.find_task_history(db, task_id, undo_version)
     db_task = task_repo.update_task_by_task_history(

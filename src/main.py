@@ -4,9 +4,13 @@ import uvicorn
 
 from routes.router import router
 from exceptions import custom_exception
+from settings import app_name
 
-app = FastAPI()
+app = FastAPI(
+    title=app_name
+)
 app.include_router(router)
+
 
 @app.exception_handler(custom_exception.EntityNotFoundException)
 async def entity_not_found_exception_handler(
