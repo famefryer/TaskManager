@@ -22,7 +22,10 @@ Follow these steps to set up the project on your local machine:
      ```bash
      make start
      ```
-5. **Tear down Database**:
+5. **Access the API Documentation**:
+   - After starting the server, you can access the API documentation and interact with the API through Swagger UI at:
+     [http://localhost:8000/docs](http://localhost:8000/docs)
+6. **Tear down Database**:
    - To tear down the database after you're finished, run:
      ```bash
      make tear_down
