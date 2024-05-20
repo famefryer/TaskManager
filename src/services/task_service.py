@@ -7,9 +7,9 @@ from repos import task_repo, user_repo, team_repo
 
 
 def get_tasks(
-    db: Session, skip: int = 0, limit: int = 100, inc_deleted: bool = False
+    db: Session, skip: int = 0, limit: int = 100, inc_deleted: bool = False, created_by: str = None, assignee: str = None
 ) -> list[Task]:
-    return task_repo.get_all_tasks(db, skip, limit, inc_deleted)
+    return task_repo.get_all_tasks(db, skip=skip, limit=limit, inc_deleted=inc_deleted, created_by=created_by, assignee=assignee)
 
 
 def find_task_by_id(db: Session, task_id: str, inc_deleted: bool = False) -> Task:

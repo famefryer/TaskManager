@@ -8,15 +8,25 @@ from models.task_model import (
     TaskPermission,
     TaskPermissionLevel,
     TaskPermissionType,
-    TaskStatus,
 )
 from schemas.task_schema import TaskCreateRequest, TaskEditRequest
 
 
-def get_all_tasks(db: Session, skip: int, limit: int, inc_deleted: bool) -> list[Task]:
+def get_all_tasks(
+    db: Session,
+    skip: int,
+    limit: int,
+    inc_deleted: bool,
+    created_by: str = None,
+    assignee: str = None,
+) -> list[Task]:
     query = db.query(Task)
     if not inc_deleted:
         query = query.where(Task.deleted_at == None)
+    if created_by is not None:
+        query = query.where(Task.created_by == created_by)
+    if assignee is not None:
+        query = query.where(Task.created_by == assignee)
     return query.offset(skip).limit(limit).all()
 
 

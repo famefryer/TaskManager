@@ -17,13 +17,15 @@ task_router = APIRouter()
 
 @task_router.get("", response_model=list[TaskResponse])
 def get_all_tasks(
+    created_by: str = None,
+    assignee: str = None,
     skip: int = 0,
     limit: int = 100,
     include_soft_deleted: bool = False,
     db: Session = Depends(get_db),
 ):
     return task_service.get_tasks(
-        db, skip=skip, limit=limit, inc_deleted=include_soft_deleted
+        db, skip=skip, limit=limit, inc_deleted=include_soft_deleted, created_by=created_by, assignee=assignee
     )
 
 

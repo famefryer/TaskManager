@@ -13,13 +13,13 @@ def find_user_by_id(db: Session, id: int) -> User:
     return db.query(User).where(User.deleted_at == None).where(User.id == id).first()
 
 
-def find_user_by_permission_entity_id(db: Session, permission_entity_id: int) -> User:
-    return (
-        db.query(User)
-        .where(User.deleted_at == None)
-        .where(User.permission_entity_id == permission_entity_id)
-        .first()
-    )
+# def find_user_by_permission_entity_id(db: Session, permission_entity_id: int) -> User:
+#     return (
+#         db.query(User)
+#         .where(User.deleted_at == None)
+#         .where(User.permission_entity_id == permission_entity_id)
+#         .first()
+#     )
 
 
 def find_user_by_username(db: Session, username: str) -> User:

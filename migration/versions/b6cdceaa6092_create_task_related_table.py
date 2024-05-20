@@ -27,13 +27,13 @@ def upgrade() -> None:
         'user',
         sa.Column('id', sa.UUID, primary_key=True),
         sa.Column('permission_entity_id', sa.VARCHAR(38), nullable=False),
-        sa.Column('username', sa.VARCHAR(32), nullable=False),
+        sa.Column('username', sa.VARCHAR(32), unique=True, index=True, nullable=False),
         sa.Column('firstname', sa.VARCHAR(255), nullable=False),
         sa.Column('lastname', sa.VARCHAR(255), nullable=False),
         sa.Column('email', sa.VARCHAR(255), nullable=True),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('last_updated_at', sa.DateTime(), nullable=False),
-        sa.Column('deleted_at', sa.DateTime(), nullable=True)
+        sa.Column('deleted_at', sa.DateTime(), index=True, nullable=True)
     )
     
     op.create_table(
@@ -43,18 +43,18 @@ def upgrade() -> None:
         sa.Column('topic', sa.VARCHAR, nullable=False),
         sa.Column('description', sa.TEXT, nullable=True),
         sa.Column('status', task_status_enum, nullable=False),
-        sa.Column('created_by', sa.UUID, sa.ForeignKey('user.id'), nullable=False),
-        sa.Column('assignee', sa.UUID, sa.ForeignKey('user.id'), nullable=True),
+        sa.Column('created_by', sa.UUID, sa.ForeignKey('user.id'), index=True, nullable=False),
+        sa.Column('assignee', sa.UUID, sa.ForeignKey('user.id'), index=True, nullable=True),
         sa.Column('use_permission', sa.Boolean, default=False, nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('last_updated_at', sa.DateTime(), nullable=False),
-        sa.Column('deleted_at', sa.DateTime(), nullable=True)
+        sa.Column('deleted_at', sa.DateTime(), index=True, nullable=True)
     )
     
     op.create_table(
         'task_history',
         sa.Column('id', sa.UUID, primary_key=True),
-        sa.Column('task_id', sa.UUID, sa.ForeignKey('task.id'), nullable=False),
+        sa.Column('task_id', sa.UUID, sa.ForeignKey('task.id'), index=True, nullable=False),
         sa.Column('version', sa.Integer, nullable=False),
         sa.Column('topic', sa.VARCHAR, nullable=False),
         sa.Column('description', sa.TEXT, nullable=True),
@@ -63,14 +63,14 @@ def upgrade() -> None:
         sa.Column('use_permission', sa.Boolean, default=False, nullable=False),
         sa.Column('edited_by', sa.UUID, sa.ForeignKey('user.id'), nullable=False),
         sa.Column('edited_at', sa.DateTime(), nullable=False),
-        sa.Column('deleted_at', sa.DateTime(), nullable=True)
+        sa.Column('deleted_at', sa.DateTime(), index=True, nullable=True)
     )
     
     op.create_table(
         'team',
         sa.Column('id', sa.UUID, primary_key=True),
         sa.Column('permission_entity_id', sa.VARCHAR(38), nullable=False),
-        sa.Column('name', sa.VARCHAR(255), nullable=False),
+        sa.Column('name', sa.VARCHAR(255), unique=True, nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('last_updated_at', sa.DateTime(), nullable=False),
         sa.Column('deleted_at', sa.DateTime(), nullable=True)
@@ -79,15 +79,15 @@ def upgrade() -> None:
     op.create_table(
         'team_member',
         sa.Column('id', sa.UUID, primary_key=True),
-        sa.Column('team_id', sa.UUID, sa.ForeignKey('team.id', ondelete='CASCADE'), nullable=False),
-        sa.Column('user_id', sa.UUID, sa.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+        sa.Column('team_id', sa.UUID, sa.ForeignKey('team.id', ondelete='CASCADE'), index=True, nullable=False),
+        sa.Column('user_id', sa.UUID, sa.ForeignKey('user.id', ondelete='CASCADE'), index=True, nullable=False)
     )
     
     op.create_table(
         'task_permission',
         sa.Column('id', sa.UUID, primary_key=True),
-        sa.Column('task_id', sa.UUID, sa.ForeignKey('task.id'), nullable=False),
-        sa.Column('permission_entity_id', sa.VARCHAR(38), nullable=False),
+        sa.Column('task_id', sa.UUID, sa.ForeignKey('task.id'), index=True, nullable=False),
+        sa.Column('permission_entity_id', sa.VARCHAR(38), index=True, nullable=False),
         sa.Column('permission_type', task_perm_type_enum, nullable=False),
         sa.Column('permissionLevel', task_perm_level_enum, nullable=False)
     )
